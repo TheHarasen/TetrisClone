@@ -170,6 +170,13 @@ namespace Tetris
         /// </summary>
         public int ComboCount { get; private set; }
 
+        /// <summary>
+        /// Number of frames to withhold locking the piece in place when reaching the bottom.
+        /// </summary>
+        public int GraceTimer { get; private set; }
+
+        public bool GameOver { get; private set; }
+
         public TetrisGame(GameWnd wnd)
         {
             GameWnd = wnd;
@@ -254,18 +261,25 @@ namespace Tetris
         {
             //Create a random tetromino to spawn on the field
             CurrentPiece = NextPiece;
-            CurrentPiece.Position = new Point(
-                (Field.FieldWidth / 2) - (CurrentPiece.GetWidth() / 2),
-                0
-            );
+            PlacePieceAtTop(CurrentPiece);
 
+            //Get the next piece
             NextPiece = BlockFieldConstructor.CreateTetromino();
 
             //Stop game if the piece couldn't spawn
             if (!Field.SpawnBlockField(CurrentPiece))
             {
+                GameOver = true;
                 Running = false;
             }
+        }
+
+        private void PlacePieceAtTop(BlockField piece)
+        {
+            piece.Position = new Point(
+                (Field.FieldWidth / 2) - (piece.GetWidth() / 2),
+                0
+            );
         }
 
         /// <summary>
@@ -283,8 +297,7 @@ namespace Tetris
             NextPiece = BlockFieldConstructor.CreateTetromino();
             SwitchToNewPiece();
             Running = true;
-
-            HandleScore(1);
+            GameOver = false;
         }
 
         /// <summary>
@@ -318,7 +331,24 @@ namespace Tetris
         /// <param name="key">Key that was pressed.</param>
         public void KeyPressed(Keys key)
         {
-            switch(key)
+            if (!Running)
+            {
+                if (GameOver)
+                {
+                    DoGameOverControls(key);
+                } else
+                {
+                    DoPausedControls(key);
+                }
+            } else
+            {
+                DoGameControls(key);
+            }
+        }
+
+        public void DoGameControls(Keys key)
+        {
+            switch (key)
             {
                 case Keys.Left:
                     Field.MoveBlocks(CurrentPiece, -1, 0);
@@ -339,13 +369,30 @@ namespace Tetris
                     SwitchToNewPiece();
                     break;
                 case Keys.P:
-                    Running = !Running;
+                    Running = false;
+                    break;
+            }
+        }
+
+        public void DoPausedControls(Keys key)
+        {
+            switch (key)
+            {
+                case Keys.P:
+                    Running = true;
                     break;
                 case Keys.R:
                     StartNewGame();
                     break;
-                case Keys.C:
-                    Field.Clear();
+            }
+        }
+
+        public void DoGameOverControls(Keys key)
+        {
+            switch (key)
+            {
+                case Keys.R:
+                    StartNewGame();
                     break;
             }
         }

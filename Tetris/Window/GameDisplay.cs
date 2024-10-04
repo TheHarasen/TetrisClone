@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Linq;
@@ -18,9 +19,11 @@ namespace Tetris.Window
     /// </summary>
     public class GameDisplay : Panel
     {
-        Pen WhitePen = new Pen(Color.White);
-        Brush WhiteBrush = new SolidBrush(Color.White);
-        Font textFont = new Font(FontFamily.GenericSansSerif, 20);
+        private readonly Pen WhitePen = new Pen(Color.White);
+        private readonly Brush WhiteBrush = new SolidBrush(Color.White);
+        private readonly Font textFont = new Font(FontFamily.GenericSansSerif, 20);
+
+        private readonly Brush PausedOverlay = new SolidBrush(Color.FromArgb(150, Color.Black));
 
         public TetrisGame Game { get; set; }
 
@@ -46,6 +49,10 @@ namespace Tetris.Window
             int fieldW = TetrisGame.GAME_GRID_SIZE_X * Game.GAME_CELL_PIXEL_SIZE;
             int fieldH = TetrisGame.GAME_GRID_SIZE_Y * Game.GAME_CELL_PIXEL_SIZE;
 
+            //scratch values for text
+            float textX;
+            float textY;
+
             //Get top-left position of the game field
             Point fieldPos = new Point(
                 (screenW / 2) - (fieldW / 2),
@@ -55,6 +62,37 @@ namespace Tetris.Window
             DrawFieldCells(e.Graphics, fieldPos);
 
             DrawDropPieceGhost(e.Graphics, fieldPos);
+
+            if (!Game.Running)
+            {
+                Rectangle overlay = new Rectangle(fieldPos.X, fieldPos.Y, fieldW, fieldH);
+
+                e.Graphics.FillRectangle(PausedOverlay, overlay);
+
+                if (Game.GameOver)
+                {
+                    textX = fieldPos.X + 70;
+                    textY = fieldPos.Y + (fieldH / 2) - 40;
+
+                    e.Graphics.DrawString("Game Over!", textFont, WhiteBrush, textX, textY);
+
+                    textX -= 35;
+                    textY += 40;
+
+                    e.Graphics.DrawString("Press R to Restart.", textFont, WhiteBrush, textX, textY);
+                } else
+                {
+                    textX = fieldPos.X + 90;
+                    textY = fieldPos.Y + (fieldH / 2) - 40;
+
+                    e.Graphics.DrawString("Paused", textFont, WhiteBrush, textX, textY);
+
+                    textX -= 25;
+                    textY += 40;
+
+                    e.Graphics.DrawString("R: Restart\nP: Unpause", textFont, WhiteBrush, textX, textY);
+                }
+            }
 
             DrawFieldOutLine(e.Graphics, fieldPos);
 
@@ -66,8 +104,8 @@ namespace Tetris.Window
             DrawNextPeice(e.Graphics, nextPiecePos);
 
             //Draw score
-            float textX = fieldPos.X + fieldW + TetrisGame.GAME_FIELD_PIXEL_MARGIN;
-            float textY = fieldPos.Y;
+            textX = fieldPos.X + fieldW + TetrisGame.GAME_FIELD_PIXEL_MARGIN;
+            textY = fieldPos.Y;
 
             e.Graphics.DrawString(string.Format("Score: {0}", Game.Score), textFont, WhiteBrush, textX, textY);
 

@@ -235,7 +235,7 @@ namespace Tetris.Game
             }
         };
 
-        private static Random rand = new Random();
+        private static readonly Random rand = new Random();
         private static int lastRand = -1;
 
         /// <summary>
