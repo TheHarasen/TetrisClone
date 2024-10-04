@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Tetris.Window;
 
 namespace Tetris
 {
@@ -16,7 +18,18 @@ namespace Tetris
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+
+            GameDisplay display = new GameDisplay();
+            display.Size = new Size(
+                TetrisGame.GAME_WINDOW_SIZE_X,
+                TetrisGame.GAME_WINDOW_SIZE_Y
+            );
+
+            GameWnd gameWnd = new GameWnd(display);
+            TetrisGame game = new TetrisGame(gameWnd);
+            display.Game = game;
+
+            Application.Run(gameWnd);
         }
     }
 }
