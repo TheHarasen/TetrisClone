@@ -15,11 +15,11 @@ namespace Tetris.Game
         /// <summary>
         /// Width of the game field in blocks.
         /// </summary>
-        private int FieldWidth;
+        public int FieldWidth { get; private set; }
         /// <summary>
         /// Height of the game field in blocks.
         /// </summary>
-        private int FieldHeight;
+        public int FieldHeight { get; private set; }
         /// <summary>
         /// The field of blocks. Any non-zero entry is inhabited by a block.
         /// </summary>
@@ -135,7 +135,7 @@ namespace Tetris.Game
             //Move up until it's in a valid position
             while (!BlocksPositionValid(blocks))
             {
-                blocks.Position = new Point(blocks.Position.X, blocks.Position.Y - 1);
+                blocks.Nudge(0, -1);
 
                 //If it spills over the top of the field, undo rotation and stop moving
                 if (blocks.Position.Y < 0)
@@ -362,6 +362,36 @@ namespace Tetris.Game
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Get a block field representing the position of the given block field if it dropped its final position.
+        /// Essentially a "ghost" of the given piece.
+        /// </summary>
+        /// <param name="blocks">Block to get the ghost of.</param>
+        /// <returns>Block field representing the ghost piece. Will be null if the input wasn't in a valid position to begin with.</returns>
+        public BlockField GetDropGhost(BlockField blocks)
+        {
+            //Temporarily remove the blocks occupied by the given block
+            SetFieldOfBlocks(blocks, true);
+
+            BlockField ghost = new BlockField(blocks);
+
+            //Push ghost down until the position is invalid
+            while(true)
+            {
+                ghost.Nudge(0, 1);
+                if (!BlocksPositionValid(ghost))
+                {
+                    ghost.Nudge(0, -1);
+                    break;
+                }
+            }
+
+            //restore blocks
+            SetFieldOfBlocks(blocks, false);
+
+            return ghost;
         }
     }
 }

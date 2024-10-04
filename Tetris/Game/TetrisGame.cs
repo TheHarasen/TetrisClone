@@ -42,18 +42,50 @@ namespace Tetris
         public static readonly int GAME_FIELD_PIXEL_MARGIN = 20;
 
         /// <summary>
-        /// Colors of each possible value in a block.
+        /// Main colors of each possible value in a block.
         /// </summary>
         public static readonly Color[] TETROMINO_COLORS = new Color[]
         {
             /*None  */ Color.White,
-            /*T     */ Color.Purple,
+            /*T     */ Color.DarkMagenta,
             /*S     */ Color.Green,
             /*Z     */ Color.Red,
             /*Square*/ Color.Yellow,
             /*Long  */ Color.LightBlue,
             /*L     */ Color.DarkBlue,
             /*J     */ Color.Orange
+        };
+        /// <summary>
+        /// Outline colors of each possible value in a block.
+        /// </summary>
+        public static readonly Color[] TETROMINO_OUTLINE_COLORS = new Color[]
+        {
+            /*None  */ Color.White,
+            /*T     */ Color.MediumPurple,
+            /*S     */ Color.LightGreen,
+            /*Z     */ Color.Pink,
+            /*Square*/ Color.LightYellow,
+            /*Long  */ Color.Azure,
+            /*L     */ Color.Blue,
+            /*J     */ Color.Yellow
+        };
+        /// <summary>
+        /// Alpha value to be applied to the ghost piece color.
+        /// </summary>
+        public static readonly int TETROMINO_GHOST_ALPHA = 50;
+        /// <summary>
+        /// Ghost colors of each possible value in a block.
+        /// </summary>
+        public static readonly Color[] TETROMINO_GHOST_COLORS = new Color[]
+        {
+            /*None  */ Color.White,
+            /*T     */ Color.FromArgb(TETROMINO_GHOST_ALPHA, TETROMINO_COLORS[1]),
+            /*S     */ Color.FromArgb(TETROMINO_GHOST_ALPHA, TETROMINO_COLORS[2]),
+            /*Z     */ Color.FromArgb(TETROMINO_GHOST_ALPHA, TETROMINO_COLORS[3]),
+            /*Square*/ Color.FromArgb(TETROMINO_GHOST_ALPHA, TETROMINO_COLORS[4]),
+            /*Long  */ Color.FromArgb(TETROMINO_GHOST_ALPHA, TETROMINO_COLORS[5]),
+            /*L     */ Color.FromArgb(TETROMINO_GHOST_ALPHA, TETROMINO_COLORS[6]),
+            /*J     */ Color.FromArgb(TETROMINO_GHOST_ALPHA, TETROMINO_COLORS[7])
         };
 
 
@@ -91,6 +123,7 @@ namespace Tetris
         /// Current block field (tetromino) that moves around and can be controlled.
         /// </summary>
         public BlockField CurrentPiece { get; private set; }
+        public BlockField NextPiece { get; private set; }
 
         public TetrisGame(GameWnd wnd)
         {
@@ -101,10 +134,11 @@ namespace Tetris
 
             Running = true;
 
-            CurrentPiece = BlockFieldConstructor.CreateTetromino(0);
-            CurrentPiece.Position = new Point(3, 0);
-            Field.SpawnBlockField(CurrentPiece);
+            //Initialize piece
+            NextPiece = BlockFieldConstructor.CreateTetromino();
+            SwitchToNewPiece();
 
+            //Start timer
             FrameTimer = new Timer();
             FrameTimer.Tick += new EventHandler(Update);
             FrameTimer.Interval = GAME_FRAMERATE_MILLIS; // in miliseconds
@@ -176,8 +210,13 @@ namespace Tetris
         private void SwitchToNewPiece()
         {
             //Create a random tetromino to spawn on the field
-            CurrentPiece = BlockFieldConstructor.CreateTetromino(0);
-            CurrentPiece.Position = new Point(4, 0);
+            CurrentPiece = NextPiece;
+            CurrentPiece.Position = new Point(
+                (Field.FieldWidth / 2) - (CurrentPiece.GetWidth() / 2),
+                0
+            );
+
+            NextPiece = BlockFieldConstructor.CreateTetromino();
 
             //Stop game if the piece couldn't spawn
             if (!Field.SpawnBlockField(CurrentPiece))
@@ -211,6 +250,9 @@ namespace Tetris
                     break;
                 case Keys.Up:
                     Field.RotateBlockField(CurrentPiece);
+                    break;
+                case Keys.Down:
+                    DoPieceFall();
                     break;
                 case Keys.Space:
                     Field.DropBlocks(CurrentPiece);

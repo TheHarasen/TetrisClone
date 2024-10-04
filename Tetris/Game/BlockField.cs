@@ -41,6 +41,7 @@ namespace Tetris.Game
             CopyBlocks(o);
             CopyPosition(o);
             Shape = o.Shape;
+            Rotation = o.Rotation;
         }
 
         /// <summary>
@@ -79,6 +80,11 @@ namespace Tetris.Game
             if (Blocks.Length == 0) return 0;
 
             return Blocks[0].Length;
+        }
+
+        public void Nudge(int dX, int dY)
+        {
+            Position = new Point(Position.X + dX, Position.Y + dY);
         }
 
         /// <summary>

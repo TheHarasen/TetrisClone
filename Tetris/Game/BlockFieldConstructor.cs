@@ -274,6 +274,15 @@ namespace Tetris.Game
         }
 
         /// <summary>
+        /// Create a random tetromino with the default rotation. This will never spit back the same tetromino twice in a row.
+        /// </summary>
+        /// <returns>Block field representing the created tetromino.</returns>
+        public static BlockField CreateTetromino()
+        {
+            return CreateTetromino(0);
+        }
+
+        /// <summary>
         /// Generate a random tetromino with the given rotation. This will never spit back the same tetromino twice in a row.
         /// </summary>
         /// <param name="rotation">Rotation value for the tetromino.</param>
