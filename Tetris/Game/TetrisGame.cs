@@ -88,6 +88,18 @@ namespace Tetris
             /*J     */ Color.FromArgb(TETROMINO_GHOST_ALPHA, TETROMINO_COLORS[7])
         };
 
+        public static readonly int LEVELUP_LINES_NEEDED = 10;
+
+        public static readonly int STARTING_DROP_INTERVAL = 25;
+
+        public static readonly int[] SCORETABLE = new int[]
+        {
+            100, /*Single*/
+            300, /*Double*/
+            500, /*Triple*/
+            800  /*Tetris*/
+        };
+
 
         /// <summary>
         /// Width/height of each cell in pixels.
@@ -117,13 +129,46 @@ namespace Tetris
         /// <summary>
         /// Whether or not to do game logic every frame.
         /// </summary>
-        public bool Running { get; private set; }
+        public bool Running { get; private set; } = false;
 
         /// <summary>
         /// Current block field (tetromino) that moves around and can be controlled.
         /// </summary>
         public BlockField CurrentPiece { get; private set; }
+        /// <summary>
+        /// Next block field (tetromino) that will be used when the current piece has been dropped.
+        /// </summary>
         public BlockField NextPiece { get; private set; }
+
+        /// <summary>
+        /// The score count in the current game.
+        /// </summary>
+        public int Score { get; private set; } = 0;
+
+        /// <summary>
+        /// Number of frames between a piece falling.
+        /// </summary>
+        public int DropInterval { get; private set; }
+
+        /// <summary>
+        /// Number of frames since last drop.
+        /// </summary>
+        public int DropTimer { get; private set; }
+
+        /// <summary>
+        /// The level count in the current game.
+        /// </summary>
+        public int Level { get; private set; }
+
+        /// <summary>
+        /// Number of lines cleared.
+        /// </summary>
+        public int LinesCleared { get; private set; }
+
+        /// <summary>
+        /// Number of line clears scored consecutively
+        /// </summary>
+        public int ComboCount { get; private set; }
 
         public TetrisGame(GameWnd wnd)
         {
@@ -132,11 +177,7 @@ namespace Tetris
 
             RecalculateCellPixelSize();
 
-            Running = true;
-
-            //Initialize piece
-            NextPiece = BlockFieldConstructor.CreateTetromino();
-            SwitchToNewPiece();
+            StartNewGame();
 
             //Start timer
             FrameTimer = new Timer();
@@ -186,8 +227,10 @@ namespace Tetris
         /// </summary>
         private void UpdateGameState()
         {
-            if (FrameCounter % 10 == 0)
+            DropTimer++;
+            if (DropTimer >= DropInterval)
             {
+                DropTimer = 0;
                 DoPieceFall();
             }
         }
@@ -199,13 +242,13 @@ namespace Tetris
         {
             if (!Field.MoveBlocks(CurrentPiece, 0, 1))
             {
-                Field.CheckClearedLines();
+                HandleScore(Field.CheckClearedLines());
                 SwitchToNewPiece();
             }
         }
 
         /// <summary>
-        /// Discard the current piece and create a new one that gets put on top of the field.
+        /// Leave the current piece in place and create a new one that gets put on top of the field.
         /// </summary>
         private void SwitchToNewPiece()
         {
@@ -228,10 +271,45 @@ namespace Tetris
         /// <summary>
         /// Clear board and start game from the beginning.
         /// </summary>
-        private void ResetGame()
+        private void StartNewGame()
         {
             Field.Clear();
+            Score = 0;
+            Level = 1;
+            LinesCleared = 0;
+            ComboCount = 0;
+            DropInterval = STARTING_DROP_INTERVAL;
+            DropTimer = 0;
+            NextPiece = BlockFieldConstructor.CreateTetromino();
             SwitchToNewPiece();
+            Running = true;
+
+            HandleScore(1);
+        }
+
+        /// <summary>
+        /// Adjust score, level etc. according to the lines cleared.
+        /// </summary>
+        /// <param name="lines">Number of lines cleared.</param>
+        private void HandleScore(int lines)
+        {
+            if (lines == 0)
+            {
+                ComboCount = 0;
+                return;
+            }
+
+            LinesCleared += lines;
+
+            Score += SCORETABLE[lines - 1] * Level;
+            Score += ComboCount * 50 * Level;
+
+            int newLevel = (LinesCleared / 10) + 1;
+            if (newLevel > Level) { Level = newLevel; }
+
+            DropInterval = Math.Max(STARTING_DROP_INTERVAL - (Level-1 * 5), 2);
+
+            ComboCount++;
         }
 
         /// <summary>
@@ -252,19 +330,22 @@ namespace Tetris
                     Field.RotateBlockField(CurrentPiece);
                     break;
                 case Keys.Down:
+                    DropTimer = 0;
                     DoPieceFall();
                     break;
                 case Keys.Space:
                     Field.DropBlocks(CurrentPiece);
-                    Field.CheckClearedLines();
+                    HandleScore(Field.CheckClearedLines());
                     SwitchToNewPiece();
                     break;
                 case Keys.P:
                     Running = !Running;
                     break;
                 case Keys.R:
-                    Running = true;
-                    ResetGame();
+                    StartNewGame();
+                    break;
+                case Keys.C:
+                    Field.Clear();
                     break;
             }
         }

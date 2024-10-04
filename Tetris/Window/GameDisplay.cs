@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tetris.Game;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace Tetris.Window
 {
@@ -17,6 +19,8 @@ namespace Tetris.Window
     public class GameDisplay : Panel
     {
         Pen WhitePen = new Pen(Color.White);
+        Brush WhiteBrush = new SolidBrush(Color.White);
+        Font textFont = new Font(FontFamily.GenericSansSerif, 20);
 
         public TetrisGame Game { get; set; }
 
@@ -53,6 +57,23 @@ namespace Tetris.Window
             DrawDropPieceGhost(e.Graphics, fieldPos);
 
             DrawFieldOutLine(e.Graphics, fieldPos);
+
+            Point nextPiecePos = new Point(
+                fieldPos.X + fieldW + TetrisGame.GAME_FIELD_PIXEL_MARGIN,
+                fieldPos.Y + 100
+            );
+
+            DrawNextPeice(e.Graphics, nextPiecePos);
+
+            //Draw score
+            float textX = fieldPos.X + fieldW + TetrisGame.GAME_FIELD_PIXEL_MARGIN;
+            float textY = fieldPos.Y;
+
+            e.Graphics.DrawString(string.Format("Score: {0}", Game.Score), textFont, WhiteBrush, textX, textY);
+
+            textY += 40f;
+
+            e.Graphics.DrawString(string.Format("Level: {0}", Game.Level), textFont, WhiteBrush, textX, textY);
         }
 
         private void DrawFieldCells(Graphics graphics, Point fieldPos)
@@ -66,10 +87,9 @@ namespace Tetris.Window
             {
                 for (int y = 0; y < cellsH; y++)
                 {
-                    int cX = (x * cellSize) + fieldPos.X;
-                    int cY = (y * cellSize) + fieldPos.Y;
-                    Rectangle cRect = new Rectangle(
-                        cX, cY, cellSize, cellSize
+                    Point cPos = new Point(
+                        (x * cellSize) + fieldPos.X,
+                        (y * cellSize) + fieldPos.Y
                     );
 
                     if (Game.Field.Field[x][y] != 0)
@@ -79,8 +99,7 @@ namespace Tetris.Window
 
                         Brush cellBrush = new SolidBrush(TetrisGame.TETROMINO_COLORS[type]);
                         Pen cellPen = new Pen(TetrisGame.TETROMINO_OUTLINE_COLORS[type]);
-                        graphics.FillRectangle(cellBrush, cRect);
-                        graphics.DrawRectangle(cellPen, cRect);
+                        DrawCell(graphics, cPos, cellBrush, cellPen);
                         cellBrush.Dispose();
                         cellPen.Dispose();
                     }
@@ -111,18 +130,15 @@ namespace Tetris.Window
                     {
                         int val = ghost.Blocks[x][y];
 
-                        //Don't waste time drawing an empty block
+                        //Don't draw an empty block
                         if (val == 0) { continue; }
 
-                        Rectangle cRect = new Rectangle(
+                        Point poxPos = new Point(
                             ((cX + x) * cellSize) + fieldPos.X,
-                            ((cY + y) * cellSize) + fieldPos.Y,
-                            cellSize,
-                            cellSize
+                            ((cY + y) * cellSize) + fieldPos.Y
                         );
 
-                        graphics.FillRectangle(cellBrush, cRect);
-                        graphics.DrawRectangle(cellPen, cRect);
+                        DrawCell(graphics, poxPos, cellBrush, cellPen);
                     }
                 }
 
@@ -144,9 +160,67 @@ namespace Tetris.Window
             graphics.DrawRectangle(WhitePen, fieldOutLine);
         }
         
-        private void DrawNextPeice()
+        private void DrawNextPeice(Graphics graphics, Point nextPiecePos)
         {
+            if (Game.NextPiece == null) { return; }
 
+            int margin = TetrisGame.GAME_FIELD_PIXEL_MARGIN;
+
+            int nextPieceSize = (Game.GAME_CELL_PIXEL_SIZE * 4) + (2 * margin);
+
+            //Draw outline
+            Rectangle nextPieceOutLine = new Rectangle(
+                nextPiecePos.X, nextPiecePos.Y, nextPieceSize, nextPieceSize
+            );
+
+            graphics.DrawRectangle(WhitePen, nextPieceOutLine);
+
+            int pieceX = nextPiecePos.X +
+                margin +
+                ((4 - Game.NextPiece.GetWidth()) * Game.GAME_CELL_PIXEL_SIZE / 2);
+            int pieceY = nextPiecePos.Y +
+                margin +
+                ((4 - Game.NextPiece.GetHeight()) * Game.GAME_CELL_PIXEL_SIZE / 2);
+
+            int type = (int)Game.NextPiece.Shape + 1;
+
+            Pen cellPen = new Pen(TetrisGame.TETROMINO_OUTLINE_COLORS[type]);
+            Brush cellBrush = new SolidBrush(TetrisGame.TETROMINO_COLORS[type]);
+
+            int[][] blocks = Game.NextPiece.Blocks;
+
+            for (int x = 0; x < blocks.Length; x++)
+            {
+                for (int y = 0; y < blocks[x].Length; y++)
+                {
+                    if (blocks[x][y] == 0) { continue; }
+
+                    Point cPos = new Point(
+                        pieceX + (x * Game.GAME_CELL_PIXEL_SIZE),
+                        pieceY + (y * Game.GAME_CELL_PIXEL_SIZE)
+                    );
+
+                    DrawCell(graphics, cPos, cellBrush, cellPen);
+                }
+            }
+
+            cellPen.Dispose();
+            cellBrush.Dispose();
+
+            //Draw "Next" text
+            float textX = nextPiecePos.X;
+            float textY = nextPiecePos.Y + (margin * 2) +
+                (Game.GAME_CELL_PIXEL_SIZE * 4);
+
+            graphics.DrawString("Next", textFont, WhiteBrush, textX, textY);
+        }
+
+        private void DrawCell(Graphics graphics, Point pos, Brush fillCol, Pen outlineCol)
+        {
+            Rectangle cell = new Rectangle(pos.X, pos.Y, Game.GAME_CELL_PIXEL_SIZE, Game.GAME_CELL_PIXEL_SIZE);
+
+            graphics.FillRectangle(fillCol, cell);
+            graphics.DrawRectangle(outlineCol, cell);
         }
     }
 }
