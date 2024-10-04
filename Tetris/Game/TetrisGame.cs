@@ -6,20 +6,44 @@ using System.Security.Policy;
 
 namespace Tetris
 {
+    /// <summary>
+    /// Holds various globals and the internal state of the game of Tetris.
+    /// </summary>
     public class TetrisGame
     {
         //Static stuff:
 
+        /// <summary>
+        /// The game field's width in cells.
+        /// </summary>
         public static readonly int GAME_GRID_SIZE_X = 10;
+        /// <summary>
+        /// The game field's height in cells.
+        /// </summary>
         public static readonly int GAME_GRID_SIZE_Y = 20;
 
+        /// <summary>
+        /// The game display's width in pixels.
+        /// </summary>
         public static readonly int GAME_WINDOW_SIZE_X = 800;
+        /// <summary>
+        /// The game display's height in pixels.
+        /// </summary>
         public static readonly int GAME_WINDOW_SIZE_Y = 600;
 
+        /// <summary>
+        /// The number of milliseconds inbetween each frame.
+        /// </summary>
         public static readonly int GAME_FRAMERATE_MILLIS = 1000 / 60;
 
+        /// <summary>
+        /// The margin around the game field in pixels.
+        /// </summary>
         public static readonly int GAME_FIELD_PIXEL_MARGIN = 20;
 
+        /// <summary>
+        /// Colors of each possible value in a block.
+        /// </summary>
         public static readonly Color[] TETROMINO_COLORS = new Color[]
         {
             /*None  */ Color.White,
@@ -33,20 +57,40 @@ namespace Tetris
         };
 
 
-
+        /// <summary>
+        /// Width/height of each cell in pixels.
+        /// </summary>
         public int GAME_CELL_PIXEL_SIZE { get; private set; } = 10;
 
+        /// <summary>
+        /// Game field of this instance.
+        /// </summary>
         public GameField Field { get; private set; }
 
+        /// <summary>
+        /// Window to render to.
+        /// </summary>
         public GameWnd GameWnd { get; private set; }
 
-        public Timer FrameTick { get; private set; }
+        /// <summary>
+        /// Timer that ticks every frame.
+        /// </summary>
+        public Timer FrameTimer { get; private set; }
 
-        public int FrameTimer { get; private set; }
+        /// <summary>
+        /// Counter that increments every frame.
+        /// </summary>
+        public int FrameCounter { get; private set; }
 
+        /// <summary>
+        /// Whether or not to do game logic every frame.
+        /// </summary>
         public bool Running { get; private set; }
 
-        public BlockField CurrentBlockField { get; private set; }
+        /// <summary>
+        /// Current block field (tetromino) that moves around and can be controlled.
+        /// </summary>
+        public BlockField CurrentPiece { get; private set; }
 
         public TetrisGame(GameWnd wnd)
         {
@@ -57,16 +101,19 @@ namespace Tetris
 
             Running = true;
 
-            CurrentBlockField = BlockFieldConstructor.CreateTetromino(0);
-            CurrentBlockField.Position = new Point(3, 0);
-            Field.SpawnBlockField(CurrentBlockField);
+            CurrentPiece = BlockFieldConstructor.CreateTetromino(0);
+            CurrentPiece.Position = new Point(3, 0);
+            Field.SpawnBlockField(CurrentPiece);
 
-            FrameTick = new Timer();
-            FrameTick.Tick += new EventHandler(Update);
-            FrameTick.Interval = GAME_FRAMERATE_MILLIS; // in miliseconds
-            FrameTick.Start();
+            FrameTimer = new Timer();
+            FrameTimer.Tick += new EventHandler(Update);
+            FrameTimer.Interval = GAME_FRAMERATE_MILLIS; // in miliseconds
+            FrameTimer.Start();
         }
 
+        /// <summary>
+        /// Calculate the size of each cell in pixels based on the field/window size and margin.
+        /// </summary>
         private void RecalculateCellPixelSize()
         {
             float fieldRatio =
@@ -78,17 +125,21 @@ namespace Tetris
             {
                 GAME_CELL_PIXEL_SIZE =
                     (GAME_WINDOW_SIZE_Y - GAME_FIELD_PIXEL_MARGIN) / GAME_GRID_SIZE_Y;
-            } else
+            } else //field is wider than screen
             {
                 GAME_CELL_PIXEL_SIZE =
                     (GAME_WINDOW_SIZE_X - GAME_FIELD_PIXEL_MARGIN) / GAME_GRID_SIZE_X;
             }
         }
 
+        /// <summary>
+        /// Update the current frame and run game logic.
+        /// </summary>
         private void Update(object sender, EventArgs e)
         {
+            //Draw frame and increment frame counter
             GameWnd.Display.Invalidate();
-            FrameTimer++;
+            FrameCounter++;
 
             if (Running)
             {
@@ -96,49 +147,64 @@ namespace Tetris
             }
         }
 
+        /// <summary>
+        /// Update the state of the game.
+        /// </summary>
         private void UpdateGameState()
         {
-            if (FrameTimer % 10 == 0)
+            if (FrameCounter % 10 == 0)
             {
-                DoPieceMove();
+                DoPieceFall();
             }
         }
 
-        private void DoPieceMove()
+        /// <summary>
+        /// Make the current piece fall down one tile.
+        /// </summary>
+        private void DoPieceFall()
         {
-            if (!Field.MoveBlocks(CurrentBlockField, 0, 1))
+            if (!Field.MoveBlocks(CurrentPiece, 0, 1))
             {
                 Field.CheckClearedLines();
                 SwitchToNewPiece();
             }
         }
 
+        /// <summary>
+        /// Discard the current piece and create a new one that gets put on top of the field.
+        /// </summary>
         private void SwitchToNewPiece()
         {
-            CurrentBlockField = BlockFieldConstructor.CreateTetromino(0);
-            CurrentBlockField.Position = new Point(4, 0);
+            //Create a random tetromino to spawn on the field
+            CurrentPiece = BlockFieldConstructor.CreateTetromino(0);
+            CurrentPiece.Position = new Point(4, 0);
 
-            if (!Field.SpawnBlockField(CurrentBlockField))
+            //Stop game if the piece couldn't spawn
+            if (!Field.SpawnBlockField(CurrentPiece))
             {
                 Running = false;
             }
         }
 
+        /// <summary>
+        /// Called when a key is pressed.
+        /// </summary>
+        /// <param name="key">Key that was pressed.</param>
         public void KeyPressed(Keys key)
         {
             switch(key)
             {
                 case Keys.Left:
-                    Field.MoveBlocks(CurrentBlockField, -1, 0);
+                    Field.MoveBlocks(CurrentPiece, -1, 0);
                     break;
                 case Keys.Right:
-                    Field.MoveBlocks(CurrentBlockField, 1, 0);
+                    Field.MoveBlocks(CurrentPiece, 1, 0);
                     break;
                 case Keys.Up:
-                    Field.RotateBlockField(CurrentBlockField);
+                    Field.RotateBlockField(CurrentPiece);
                     break;
                 case Keys.Space:
-                    Field.DropBlocks(CurrentBlockField);
+                    Field.DropBlocks(CurrentPiece);
                     Field.CheckClearedLines();
                     SwitchToNewPiece();
                     break;

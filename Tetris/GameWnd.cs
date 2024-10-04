@@ -12,8 +12,14 @@ using Tetris.Window;
 
 namespace Tetris
 {
+    /// <summary>
+    /// Window that contains the game's display and forwards keyboard inputs to the game.
+    /// </summary>
     public partial class GameWnd : Form
     {
+        /// <summary>
+        /// Game display (contains the game).
+        /// </summary>
         public static GameDisplay Display { get; private set; }
 
         public GameWnd(GameDisplay display)

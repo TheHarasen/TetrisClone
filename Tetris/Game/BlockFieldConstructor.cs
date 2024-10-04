@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace Tetris.Game
 {
+    /// <summary>
+    /// All possible shapes of tetromino.
+    /// Use <see cref="TETROMINOSHAPES_AMOUNT"/> as the limit when iterating over all values.
+    /// </summary>
     public enum TetrominoShapes
     {
         T_Piece,
@@ -18,6 +22,9 @@ namespace Tetris.Game
         TETROMINOSHAPES_AMOUNT
     }
 
+    /// <summary>
+    /// Stores the data of all tetrominos and handles creating new ones.
+    /// </summary>
     public static class BlockFieldConstructor
     {
         public static readonly int[][][] TETROMINO_T = new int[][][]
@@ -231,8 +238,20 @@ namespace Tetris.Game
         private static Random rand = new Random();
         private static int lastRand = -1;
 
+        /// <summary>
+        /// Get a 2D int array of the data for any given tetromino with the given rotation value (0 to 3).
+        /// </summary>
+        /// <param name="shape">Shape of the desired tetromino.<param>
+        /// <param name="rotation">Rotation of the desired tetromino (0 to 3).</param>
+        /// <returns></returns>
         public static int[][] GetTetrominoBlocks(TetrominoShapes shape, int rotation)
         {
+            if (rotation < 0 || rotation > 3)
+            {
+                throw new ArgumentException("Rotation value out of bounds: Must be from 0 to 3.");
+            }
+
+            //Clone the 2D array of data for the desired tetromino shape.
             switch (shape)
             {
                 case TetrominoShapes.T_Piece:
@@ -254,8 +273,14 @@ namespace Tetris.Game
             return null;
         }
 
+        /// <summary>
+        /// Generate a random tetromino with the given rotation. This will never spit back the same tetromino twice in a row.
+        /// </summary>
+        /// <param name="rotation">Rotation value for the tetromino.</param>
+        /// <returns>Block field representing the created tetromino.</returns>
         public static BlockField CreateTetromino(int rotation)
         {
+            //Make sure we're not reusing shapes from last random value.
             int shape = rand.Next((int)TetrominoShapes.TETROMINOSHAPES_AMOUNT);
             while (shape == lastRand)
             {
@@ -267,17 +292,17 @@ namespace Tetris.Game
             return CreateTetromino((TetrominoShapes)shape, rotation);
         }
 
+        /// <summary>
+        /// Generate a tetromino with the given shape and rotation.
+        /// </summary>
+        /// <param name="shape">Type of the desired tetromino.</param>
+        /// <param name="rotation">Rotation value for the desired tetromino.</param>
+        /// <returns>Block field representing the created tetromino.</returns>
         public static BlockField CreateTetromino(TetrominoShapes shape, int rotation)
         {
             int[][] blocks = GetTetrominoBlocks(shape, rotation);
 
-            if (blocks != null)
-            {
-                return new BlockField(blocks, new System.Drawing.Point(0, 0), shape, rotation);
-            } else
-            {
-                return null;
-            }
+            return new BlockField(blocks, new System.Drawing.Point(0, 0), shape, rotation);
         }
     }
 }
