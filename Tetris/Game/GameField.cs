@@ -41,6 +41,20 @@ namespace Tetris.Game
         }
 
         /// <summary>
+        /// Set all values on the game field to 0.
+        /// </summary>
+        public void Clear()
+        {
+            for (int x = 0; x < FieldWidth; x++)
+            {
+                for (int y = 0; y < FieldHeight; y++)
+                {
+                    Field[x][y] = 0;
+                }
+            }
+        }
+
+        /// <summary>
         /// Move the given block field by a certain amount of blocks.
         /// Returns if the move was successful (i.e. not prevented by other blocks or out of bounds).
         /// </summary>
@@ -145,26 +159,31 @@ namespace Tetris.Game
         {
             bool moved = false;
 
+            int x = blocks.Position.X;
+            int y = blocks.Position.Y;
+            int w = blocks.GetWidth();
+            int h = blocks.GetHeight();
+
             //Check horizontally
-            if (blocks.Position.X < 0)
+            if (x < 0)
             {
-                blocks.Position = new Point(0, blocks.Position.Y);
+                blocks.Position = new Point(0, y);
                 moved = true;
-            } else if ((blocks.Position.X + blocks.GetWidth() - 1) > FieldWidth)
+            } else if ((x + w - 1) > FieldWidth - 1)
             {
-                blocks.Position = new Point(blocks.Position.X - blocks.GetWidth() - 1, blocks.Position.Y);
+                blocks.Position = new Point(FieldWidth - w, y);
                 moved = true;
             }
             
             //Check vertically
-            if (blocks.Position.Y < 0)
+            if (y < 0)
             {
-                blocks.Position = new Point(blocks.Position.X, 0);
+                blocks.Position = new Point(x, 0);
                 moved = true;
             }
-            else if ((blocks.Position.Y + blocks.GetHeight() - 1) > FieldHeight)
+            else if ((y + h - 1) > FieldHeight - 1)
             {
-                blocks.Position = new Point(blocks.Position.X, blocks.Position.Y - blocks.GetHeight() - 1);
+                blocks.Position = new Point(x, FieldHeight - h);
                 moved = true;
             }
 

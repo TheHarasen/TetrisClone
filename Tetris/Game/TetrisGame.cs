@@ -187,6 +187,15 @@ namespace Tetris
         }
 
         /// <summary>
+        /// Clear board and start game from the beginning.
+        /// </summary>
+        private void ResetGame()
+        {
+            Field.Clear();
+            SwitchToNewPiece();
+        }
+
+        /// <summary>
         /// Called when a key is pressed.
         /// </summary>
         /// <param name="key">Key that was pressed.</param>
@@ -210,6 +219,10 @@ namespace Tetris
                     break;
                 case Keys.P:
                     Running = !Running;
+                    break;
+                case Keys.R:
+                    Running = true;
+                    ResetGame();
                     break;
             }
         }
