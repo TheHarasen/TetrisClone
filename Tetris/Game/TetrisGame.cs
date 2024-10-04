@@ -88,10 +88,19 @@ namespace Tetris
             /*J     */ Color.FromArgb(TETROMINO_GHOST_ALPHA, TETROMINO_COLORS[7])
         };
 
+        /// <summary>
+        /// Amount of lines needed per level before the level increases.
+        /// </summary>
         public static readonly int LEVELUP_LINES_NEEDED = 10;
 
+        /// <summary>
+        /// The drop interval the game will start with at level 1.
+        /// </summary>
         public static readonly int STARTING_DROP_INTERVAL = 25;
 
+        /// <summary>
+        /// Table of base point amounts for a single, double, triple and tetris respectively.
+        /// </summary>
         public static readonly int[] SCORETABLE = new int[]
         {
             100, /*Single*/
@@ -100,6 +109,7 @@ namespace Tetris
             800  /*Tetris*/
         };
 
+        // Variables:
 
         /// <summary>
         /// Width/height of each cell in pixels.
@@ -146,6 +156,9 @@ namespace Tetris
         /// </summary>
         public BlockField StashedPiece { get; private set; }
 
+        /// <summary>
+        /// Allow the player to stash the current piece
+        /// </summary>
         public bool AllowStash { get; private set; }
 
         /// <summary>
@@ -183,6 +196,9 @@ namespace Tetris
         /// </summary>
         public int GraceTimer { get; private set; }
 
+        /// <summary>
+        /// Whether or not to do the game over logic
+        /// </summary>
         public bool GameOver { get; private set; }
 
         public TetrisGame(GameWnd wnd)
@@ -284,6 +300,10 @@ namespace Tetris
             }
         }
 
+        /// <summary>
+        /// Place the given piece at the top of the game field.
+        /// </summary>
+        /// <param name="piece"></param>
         private void PlacePieceAtTop(BlockField piece)
         {
             piece.Position = new Point(
@@ -337,12 +357,18 @@ namespace Tetris
             ComboCount++;
         }
 
+        /// <summary>
+        /// If no piece has been stashed yet, put the current piece in the stash and get the next piece.
+        /// If a stashed piece is present, swap the current and stashed pieces.
+        /// </summary>
         private void StashPiece()
         {
             if (!AllowStash) { return; }
 
+            //Clear current piece before swapping
             Field.SetFieldOfBlocks(CurrentPiece, true);
 
+            //Move to stash if no piece is stashed, else swap current and stashed.
             if (StashedPiece == null)
             {
                 StashedPiece = CurrentPiece;
@@ -381,6 +407,10 @@ namespace Tetris
             }
         }
 
+        /// <summary>
+        /// Do the controls for the main game loop.
+        /// </summary>
+        /// <param name="key">Input key.</param>
         public void DoGameControls(Keys key)
         {
             switch (key)
@@ -412,6 +442,10 @@ namespace Tetris
             }
         }
 
+        /// <summary>
+        /// Do the controls for the pause screen.
+        /// </summary>
+        /// <param name="key">Input key.</param>
         public void DoPausedControls(Keys key)
         {
             switch (key)
@@ -425,6 +459,10 @@ namespace Tetris
             }
         }
 
+        /// <summary>
+        /// Do the controls for the game over screen.
+        /// </summary>
+        /// <param name="key">Input key.</param>
         public void DoGameOverControls(Keys key)
         {
             switch (key)

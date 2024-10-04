@@ -38,6 +38,7 @@ namespace Tetris.Window
 
         /// <summary>
         /// Runs when the panel is redrawn (when the Invalidate method is called on it).
+        /// This code largely sucks, refactor later I guess.
         /// </summary>
         public void OnReDraw(object sender, PaintEventArgs e)
         {
