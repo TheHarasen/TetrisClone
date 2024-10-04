@@ -135,10 +135,18 @@ namespace Tetris
         /// Current block field (tetromino) that moves around and can be controlled.
         /// </summary>
         public BlockField CurrentPiece { get; private set; }
+
         /// <summary>
         /// Next block field (tetromino) that will be used when the current piece has been dropped.
         /// </summary>
         public BlockField NextPiece { get; private set; }
+
+        /// <summary>
+        /// Piece that the player has stashed for later.
+        /// </summary>
+        public BlockField StashedPiece { get; private set; }
+
+        public bool AllowStash { get; private set; }
 
         /// <summary>
         /// The score count in the current game.
@@ -263,6 +271,8 @@ namespace Tetris
             CurrentPiece = NextPiece;
             PlacePieceAtTop(CurrentPiece);
 
+            AllowStash = true;
+
             //Get the next piece
             NextPiece = BlockFieldConstructor.CreateTetromino();
 
@@ -295,6 +305,8 @@ namespace Tetris
             DropInterval = STARTING_DROP_INTERVAL;
             DropTimer = 0;
             NextPiece = BlockFieldConstructor.CreateTetromino();
+            StashedPiece = null;
+            AllowStash = true;
             SwitchToNewPiece();
             Running = true;
             GameOver = false;
@@ -323,6 +335,29 @@ namespace Tetris
             DropInterval = Math.Max(STARTING_DROP_INTERVAL - (Level-1 * 5), 2);
 
             ComboCount++;
+        }
+
+        private void StashPiece()
+        {
+            if (!AllowStash) { return; }
+
+            Field.SetFieldOfBlocks(CurrentPiece, true);
+
+            if (StashedPiece == null)
+            {
+                StashedPiece = CurrentPiece;
+                CurrentPiece = NextPiece;
+                NextPiece = BlockFieldConstructor.CreateTetromino();
+            } else
+            {
+                BlockField temp = CurrentPiece;
+                CurrentPiece = StashedPiece;
+                StashedPiece = temp;
+            }
+
+            AllowStash = false;
+
+            PlacePieceAtTop(CurrentPiece);
         }
 
         /// <summary>
@@ -370,6 +405,9 @@ namespace Tetris
                     break;
                 case Keys.P:
                     Running = false;
+                    break;
+                case Keys.C:
+                    StashPiece();
                     break;
             }
         }

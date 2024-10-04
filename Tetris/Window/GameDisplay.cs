@@ -67,31 +67,7 @@ namespace Tetris.Window
             {
                 Rectangle overlay = new Rectangle(fieldPos.X, fieldPos.Y, fieldW, fieldH);
 
-                e.Graphics.FillRectangle(PausedOverlay, overlay);
-
-                if (Game.GameOver)
-                {
-                    textX = fieldPos.X + 70;
-                    textY = fieldPos.Y + (fieldH / 2) - 40;
-
-                    e.Graphics.DrawString("Game Over!", textFont, WhiteBrush, textX, textY);
-
-                    textX -= 35;
-                    textY += 40;
-
-                    e.Graphics.DrawString("Press R to Restart.", textFont, WhiteBrush, textX, textY);
-                } else
-                {
-                    textX = fieldPos.X + 90;
-                    textY = fieldPos.Y + (fieldH / 2) - 40;
-
-                    e.Graphics.DrawString("Paused", textFont, WhiteBrush, textX, textY);
-
-                    textX -= 25;
-                    textY += 40;
-
-                    e.Graphics.DrawString("R: Restart\nP: Unpause", textFont, WhiteBrush, textX, textY);
-                }
+                DrawNotRunningOverlay(e.Graphics, overlay);
             }
 
             DrawFieldOutLine(e.Graphics, fieldPos);
@@ -102,6 +78,13 @@ namespace Tetris.Window
             );
 
             DrawNextPeice(e.Graphics, nextPiecePos);
+
+            Point stashedPiecePos = new Point(
+                fieldPos.X - (TetrisGame.GAME_FIELD_PIXEL_MARGIN * 3) - (Game.GAME_CELL_PIXEL_SIZE * 4),
+                fieldPos.Y + 100
+            );
+
+            DrawStashedPiece(e.Graphics, stashedPiecePos);
 
             //Draw score
             textX = fieldPos.X + fieldW + TetrisGame.GAME_FIELD_PIXEL_MARGIN;
@@ -185,6 +168,39 @@ namespace Tetris.Window
             }
         }
 
+        private void DrawNotRunningOverlay(Graphics graphics, Rectangle fieldRect)
+        {
+            graphics.FillRectangle(PausedOverlay, fieldRect);
+
+            float textX;
+            float textY;
+
+            if (Game.GameOver)
+            {
+                textX = fieldRect.X + 70;
+                textY = fieldRect.Y + (fieldRect.Height / 2) - 40;
+
+                graphics.DrawString("Game Over!", textFont, WhiteBrush, textX, textY);
+
+                textX -= 35;
+                textY += 40;
+
+                graphics.DrawString("Press R to Restart.", textFont, WhiteBrush, textX, textY);
+            }
+            else
+            {
+                textX = fieldRect.X + 90;
+                textY = fieldRect.Y + (fieldRect.Height / 2) - 40;
+
+                graphics.DrawString("Paused", textFont, WhiteBrush, textX, textY);
+
+                textX -= 25;
+                textY += 40;
+
+                graphics.DrawString("R: Restart\nP: Unpause", textFont, WhiteBrush, textX, textY);
+            }
+        }
+
         private void DrawFieldOutLine(Graphics graphics, Point fieldPos)
         {
             //Draw an outline of the field
@@ -251,6 +267,62 @@ namespace Tetris.Window
                 (Game.GAME_CELL_PIXEL_SIZE * 4);
 
             graphics.DrawString("Next", textFont, WhiteBrush, textX, textY);
+        }
+
+        private void DrawStashedPiece(Graphics graphics, Point stashedPiecePos)
+        {
+            int margin = TetrisGame.GAME_FIELD_PIXEL_MARGIN;
+
+            int stashedPieceSize = (Game.GAME_CELL_PIXEL_SIZE * 4) + (2 * margin);
+
+            //Draw outline
+            Rectangle stashedPieceOutline = new Rectangle(
+                stashedPiecePos.X, stashedPiecePos.Y, stashedPieceSize, stashedPieceSize
+            );
+
+            graphics.DrawRectangle(WhitePen, stashedPieceOutline);
+
+            //Draw "Stashed" text
+            float textX = stashedPiecePos.X;
+            float textY = stashedPiecePos.Y + (margin * 2) +
+                (Game.GAME_CELL_PIXEL_SIZE * 4);
+
+            graphics.DrawString("Stashed", textFont, WhiteBrush, textX, textY);
+
+            //Skip drawing the piece if it doesn't exist
+            if (Game.StashedPiece == null) { return; }
+
+            int pieceX = stashedPiecePos.X +
+                margin +
+                ((4 - Game.StashedPiece.GetWidth()) * Game.GAME_CELL_PIXEL_SIZE / 2);
+            int pieceY = stashedPiecePos.Y +
+                margin +
+                ((4 - Game.StashedPiece.GetHeight()) * Game.GAME_CELL_PIXEL_SIZE / 2);
+
+            int type = (int)Game.StashedPiece.Shape + 1;
+
+            Pen cellPen = new Pen(TetrisGame.TETROMINO_OUTLINE_COLORS[type]);
+            Brush cellBrush = new SolidBrush(TetrisGame.TETROMINO_COLORS[type]);
+
+            int[][] blocks = Game.StashedPiece.Blocks;
+
+            for (int x = 0; x < blocks.Length; x++)
+            {
+                for (int y = 0; y < blocks[x].Length; y++)
+                {
+                    if (blocks[x][y] == 0) { continue; }
+
+                    Point cPos = new Point(
+                        pieceX + (x * Game.GAME_CELL_PIXEL_SIZE),
+                        pieceY + (y * Game.GAME_CELL_PIXEL_SIZE)
+                    );
+
+                    DrawCell(graphics, cPos, cellBrush, cellPen);
+                }
+            }
+
+            cellPen.Dispose();
+            cellBrush.Dispose();
         }
 
         private void DrawCell(Graphics graphics, Point pos, Brush fillCol, Pen outlineCol)
