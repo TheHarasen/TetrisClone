@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace Tetris.Game
 {
@@ -71,7 +66,7 @@ namespace Tetris.Game
 
             //Make new field in new position
             BlockField next = new BlockField(blocks);
-            next.Position = new Point(next.Position.X + x, next.Position.Y + y);
+            next.Nudge(x, y);
 
             //Check if new position is valid
             if (!BlocksPositionValid(next)) valid = false;

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 
 namespace Tetris.Game
 {
@@ -82,6 +77,11 @@ namespace Tetris.Game
             return Blocks[0].Length;
         }
 
+        /// <summary>
+        /// Move the field's position.
+        /// </summary>
+        /// <param name="dX">Amount to move on the x-axis.</param>
+        /// <param name="dY">Amount to move on the y-axis.</param>
         public void Nudge(int dX, int dY)
         {
             Position = new Point(Position.X + dX, Position.Y + dY);

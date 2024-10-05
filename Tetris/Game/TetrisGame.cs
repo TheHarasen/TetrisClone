@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 using Tetris.Game;
-using System.Drawing;
-using System.Security.Policy;
 
 namespace Tetris
 {
@@ -55,6 +54,7 @@ namespace Tetris
             /*L     */ Color.DarkBlue,
             /*J     */ Color.Orange
         };
+
         /// <summary>
         /// Outline colors of each possible value in a block.
         /// </summary>
@@ -69,10 +69,12 @@ namespace Tetris
             /*L     */ Color.Blue,
             /*J     */ Color.Yellow
         };
+
         /// <summary>
         /// Alpha value to be applied to the ghost piece color.
         /// </summary>
         public static readonly int TETROMINO_GHOST_ALPHA = 50;
+
         /// <summary>
         /// Ghost colors of each possible value in a block.
         /// </summary>
@@ -317,7 +319,10 @@ namespace Tetris
         /// </summary>
         private void StartNewGame()
         {
+            //Initialize field
             Field.Clear();
+
+            //Initialize variables
             Score = 0;
             Level = 1;
             LinesCleared = 0;
@@ -327,6 +332,8 @@ namespace Tetris
             NextPiece = BlockFieldConstructor.CreateTetromino();
             StashedPiece = null;
             AllowStash = true;
+
+            //Start game
             SwitchToNewPiece();
             Running = true;
             GameOver = false;
@@ -376,9 +383,8 @@ namespace Tetris
                 NextPiece = BlockFieldConstructor.CreateTetromino();
             } else
             {
-                BlockField temp = CurrentPiece;
-                CurrentPiece = StashedPiece;
-                StashedPiece = temp;
+                //swap
+                (StashedPiece, CurrentPiece) = (CurrentPiece, StashedPiece);
             }
 
             AllowStash = false;

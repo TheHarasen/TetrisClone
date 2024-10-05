@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tetris.Game
 {
@@ -27,6 +23,8 @@ namespace Tetris.Game
     /// </summary>
     public static class BlockFieldConstructor
     {
+        //Lookup tables for tetromino shapes
+
         public static readonly int[][][] TETROMINO_T = new int[][][]
         {
             //rotation 1
