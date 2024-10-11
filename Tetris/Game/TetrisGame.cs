@@ -57,7 +57,7 @@ namespace Tetris
         };
 
         /// <summary>
-        /// Outline colors of each possible value in a block.
+        /// Outline and pit colors of each possible value in a block.
         /// </summary>
         public static readonly Color[] TETROMINO_ALT_COLORS = new Color[]
         {

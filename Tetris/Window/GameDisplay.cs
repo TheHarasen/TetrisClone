@@ -360,8 +360,9 @@ namespace Tetris.Window
 
 	/* -Start her-  
      * GAME_CELL_PIXEL_SIZE skal findes.
-     * DrawCell virkede men fejlede efter noget udenfor den blev redigeret
-     * DrawPieceHolder skal testes efter debugging
+     * DrawCell virkede men fejlede efter noget udenfor den blev redigeret.
+     * DrawPieceHolder skal testes efter debugging.
+     * Når DrawPieceHolder virker skal det udkommenterede kode fjernes.
      */
 	private void DrawCell(Graphics graphics, Point pos, int type, bool ghost)
         {
