@@ -46,21 +46,6 @@ namespace Tetris
         public static readonly Color[] TETROMINO_COLORS = new Color[]
         {
             /*None  */ Color.White,
-            /*T     */ Color.DarkMagenta,
-            /*S     */ Color.Green,
-            /*Z     */ Color.Red,
-            /*Square*/ Color.Yellow,
-            /*Long  */ Color.LightBlue,
-            /*L     */ Color.DarkBlue,
-            /*J     */ Color.Orange
-        };
-
-        /// <summary>
-        /// Outline colors of each possible value in a block.
-        /// </summary>
-        public static readonly Color[] TETROMINO_OUTLINE_COLORS = new Color[]
-        {
-            /*None  */ Color.White,
             /*T     */ Color.MediumPurple,
             /*S     */ Color.LightGreen,
             /*Z     */ Color.Pink,
@@ -68,7 +53,23 @@ namespace Tetris
             /*Long  */ Color.Azure,
             /*L     */ Color.Blue,
             /*J     */ Color.Yellow
+            
         };
+
+        /// <summary>
+        /// Outline colors of each possible value in a block.
+        /// </summary>
+        public static readonly Color[] TETROMINO_ALT_COLORS = new Color[]
+        {
+            /*None  */ Color.White,
+            /*T     */ Color.DarkMagenta,
+            /*S     */ Color.Green,
+            /*Z     */ Color.Red,
+            /*Square*/ Color.Yellow,
+            /*Long  */ Color.LightBlue,
+            /*L     */ Color.DarkBlue,
+            /*J     */ Color.Orange
+		};
 
         /// <summary>
         /// Alpha value to be applied to the ghost piece color.
