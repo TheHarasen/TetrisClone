@@ -59,12 +59,12 @@ namespace Tetris.Window
                 Rectangle overlay = new Rectangle(fieldPos.X, fieldPos.Y, fieldW, fieldH);
 
                 DrawNotRunningOverlay(e.Graphics, overlay);
-			}
+            }
 
             DrawFieldOutLine(e.Graphics, fieldPos, 2);
-			DrawFieldOutLine(e.Graphics, fieldPos, 4);
+            DrawFieldOutLine(e.Graphics, fieldPos, 4);
 
-			Point nextPiecePos = new Point(
+            Point nextPiecePos = new Point(
                 fieldPos.X + fieldW + TetrisGame.GAME_FIELD_PIXEL_MARGIN,
                 fieldPos.Y + 100
             );
@@ -113,7 +113,7 @@ namespace Tetris.Window
                         Brush cellBrush = new SolidBrush(TetrisGame.TETROMINO_COLORS[type]);
                         Pen cellPen = new Pen(TetrisGame.TETROMINO_ALT_COLORS[type]);
 
-						DrawCell(graphics, cPos, type, false);
+                        DrawCell(graphics, cPos, type, false);
                         cellBrush.Dispose();
                         cellPen.Dispose();
                     }
@@ -138,7 +138,7 @@ namespace Tetris.Window
                 Pen cellPen = new Pen(TetrisGame.TETROMINO_ALT_COLORS[type]);
                 Brush cellBrush = new SolidBrush(TetrisGame.TETROMINO_GHOST_COLORS[type]);
 
-				for (int x = 0; x < cW; x++)
+                for (int x = 0; x < cW; x++)
                 {
                     for (int y = 0; y < cH; y++)
                     {
@@ -196,218 +196,151 @@ namespace Tetris.Window
 
         private void DrawFieldOutLine(Graphics graphics, Point fieldPos, int offset = 2)
         {
-			//Draw an outline of the field
-			int gamefield_X = TetrisGame.GAME_GRID_SIZE_X * Game.GAME_CELL_PIXEL_SIZE;
-			int gamefield_Y = TetrisGame.GAME_GRID_SIZE_Y * Game.GAME_CELL_PIXEL_SIZE;
+            //Draw an outline of the field
+            int gamefield_X = TetrisGame.GAME_GRID_SIZE_X * Game.GAME_CELL_PIXEL_SIZE;
+            int gamefield_Y = TetrisGame.GAME_GRID_SIZE_Y * Game.GAME_CELL_PIXEL_SIZE;
 
-			
-			Rectangle fieldOutLine = new Rectangle(
-				fieldPos.X - offset,
-			    fieldPos.Y - offset,
-			    gamefield_X + offset * 2,
-			    gamefield_Y + offset * 2
-			);
+
+            Rectangle fieldOutLine = new Rectangle(
+                fieldPos.X - offset,
+                fieldPos.Y - offset,
+                gamefield_X + offset * 2,
+                gamefield_Y + offset * 2
+            );
 
             graphics.DrawRectangle(WhitePen, fieldOutLine);
-            
-		}
-        
+
+        }
+
         private void DrawNextPeice(Graphics graphics, Point nextPiecePos)
         {
-            if (Game.NextPiece == null) { return; }
-
-            int margin = TetrisGame.GAME_FIELD_PIXEL_MARGIN;
-
-            DrawPieceHolder(graphics, nextPiecePos, "Next", Game.NextPiece.Blocks, Game.NextPiece);
-
-            /*int pieceX = nextPiecePos.X +
-                margin +
-                ((4 - Game.NextPiece.GetWidth()) * Game.GAME_CELL_PIXEL_SIZE / 2);
-            int pieceY = nextPiecePos.Y +
-                margin +
-                ((4 - Game.NextPiece.GetHeight()) * Game.GAME_CELL_PIXEL_SIZE / 2);
-
-            int type = (int)Game.NextPiece.Shape + 1;
-
-            Pen cellPen = new Pen(TetrisGame.TETROMINO_ALT_COLORS[type]);
-            Brush cellBrush = new SolidBrush(TetrisGame.TETROMINO_COLORS[type]);
-
-			int[][] blocks = Game.NextPiece.Blocks;*/
-
-            /*for (int x = 0; x < blocks.Length; x++)
-            {
-                for (int y = 0; y < blocks[x].Length; y++)
-                {
-                    if (blocks[x][y] == 0) { continue; }
-
-                    Point cPos = new Point(
-                        pieceX + (x * Game.GAME_CELL_PIXEL_SIZE),
-                        pieceY + (y * Game.GAME_CELL_PIXEL_SIZE)
-                    );
-
-                    DrawCell(graphics, cPos, type, false);
-                }
-            }
-
-            cellPen.Dispose();
-            cellBrush.Dispose();*/
-
+            DrawPieceHolder(graphics, nextPiecePos, "Next", Game.NextPiece?.Blocks, Game.NextPiece);
         }
 
         private void DrawStashedPiece(Graphics graphics, Point stashedPiecePos)
         {
-            int margin = TetrisGame.GAME_FIELD_PIXEL_MARGIN;
-
-            DrawPieceHolder(graphics, stashedPiecePos, "Stashed", Game.StashedPiece.Blocks, Game.StashedPiece);
-
-            //Skip drawing the piece if it doesn't exist
-            /*if (Game.StashedPiece == null) { return; }
-
-            int pieceX = stashedPiecePos.X +
-                margin +
-                ((4 - Game.StashedPiece.GetWidth()) * Game.GAME_CELL_PIXEL_SIZE / 2);
-            int pieceY = stashedPiecePos.Y +
-                margin +
-                ((4 - Game.StashedPiece.GetHeight()) * Game.GAME_CELL_PIXEL_SIZE / 2);
-
-            int type = (int)Game.StashedPiece.Shape + 1;*/
-
-            /*Pen cellPen = new Pen(TetrisGame.TETROMINO_ALT_COLORS[type]);
-            Brush cellBrush = new SolidBrush(TetrisGame.TETROMINO_COLORS[type]);
-
-
-			int[][] blocks = Game.StashedPiece.Blocks;
-
-            for (int x = 0; x < blocks.Length; x++)
-            {
-                for (int y = 0; y < blocks[x].Length; y++)
-                {
-                    if (blocks[x][y] == 0) { continue; }
-
-                    Point cPos = new Point(
-                        pieceX + (x * Game.GAME_CELL_PIXEL_SIZE),
-                        pieceY + (y * Game.GAME_CELL_PIXEL_SIZE)
-                    );
-
-                    DrawCell(graphics, cPos, type, false);
-                }
-            }
-
-            cellPen.Dispose();
-            cellBrush.Dispose();*/
+            DrawPieceHolder(graphics, stashedPiecePos, "Stashed", Game.StashedPiece?.Blocks, Game.StashedPiece);
         }
 
 
         private void DrawPieceHolder(Graphics graphics, Point pieceHolderPos, string label, int[][] blocks, BlockField piece)
         {
-			int margin = TetrisGame.GAME_FIELD_PIXEL_MARGIN;
-			int pieceHolderSize = (Game.GAME_CELL_PIXEL_SIZE * 4) + (2 * margin);
 
-			//Draw outline
-			Rectangle nextPieceOutLine = new Rectangle(
-				pieceHolderPos.X, pieceHolderPos.Y, pieceHolderSize, pieceHolderSize
-			);
+            int margin = TetrisGame.GAME_FIELD_PIXEL_MARGIN;
+            int pieceHolderSize = (Game.GAME_CELL_PIXEL_SIZE * 4) + (2 * margin);
 
-			graphics.DrawRectangle(WhitePen, nextPieceOutLine);
+            //Draw outline
+            Rectangle nextPieceOutLine = new Rectangle(
+                pieceHolderPos.X, pieceHolderPos.Y, pieceHolderSize, pieceHolderSize
+            );
 
-			//Draw "Stashed" text
-			float textX = pieceHolderPos.X;
-			float textY = pieceHolderPos.Y + (margin * 2) +
-				(Game.GAME_CELL_PIXEL_SIZE * 4);
-
-			graphics.DrawString(label, textFont, WhiteBrush, textX, textY);
-
-            
-			int pieceX = pieceHolderPos.X +
-				margin +
-				((4 - piece.GetWidth()) * Game.GAME_CELL_PIXEL_SIZE / 2);
-			int pieceY = pieceHolderPos.Y +
-				margin +
-				((4 - piece.GetHeight()) * Game.GAME_CELL_PIXEL_SIZE / 2);
-
-			int type = (int)piece.Shape + 1;
-
-			Pen cellPen = new Pen(TetrisGame.TETROMINO_ALT_COLORS[type]);
-			Brush cellBrush = new SolidBrush(TetrisGame.TETROMINO_COLORS[type]);
+            graphics.DrawRectangle(WhitePen, nextPieceOutLine);
 
 
-			//int[][] blocks = Game.StashedPiece.Blocks;
+            //Draw "Stashed" text
+            float textX = pieceHolderPos.X;
+            float textY = pieceHolderPos.Y + (margin * 2) +
+                (Game.GAME_CELL_PIXEL_SIZE * 4);
 
-			for (int x = 0; x < blocks.Length; x++)
-			{
-				for (int y = 0; y < blocks[x].Length; y++)
-				{
-					if (blocks[x][y] == 0) { continue; }
+            graphics.DrawString(label, textFont, WhiteBrush, textX, textY);
 
-					Point cPos = new Point(
-						pieceX + (x * Game.GAME_CELL_PIXEL_SIZE),
-						pieceY + (y * Game.GAME_CELL_PIXEL_SIZE)
-					);
+            if (piece != null)
+            {
 
-					DrawCell(graphics, cPos, type, false);
-				}
-			}
+                int pieceX = pieceHolderPos.X +
+                    margin +
+                    ((4 - piece.GetWidth()) * Game.GAME_CELL_PIXEL_SIZE / 2);
+                int pieceY = pieceHolderPos.Y +
+                    margin +
+                    ((4 - piece.GetHeight()) * Game.GAME_CELL_PIXEL_SIZE / 2);
 
-			cellPen.Dispose();
-			cellBrush.Dispose();
+                int type = (int)piece.Shape + 1;
 
-		}
-
-	}
+                Pen cellPen = new Pen(TetrisGame.TETROMINO_ALT_COLORS[type]);
+                Brush cellBrush = new SolidBrush(TetrisGame.TETROMINO_COLORS[type]);
 
 
+                //int[][] blocks = Game.StashedPiece.Blocks;
+             
+                for (int x = 0; x < blocks.Length; x++)
+                {
+                    for (int y = 0; y < blocks[x].Length; y++)
+                    {
+                        if (blocks[x][y] == 0) { continue; }
 
+                        Point cPos = new Point(
+                            pieceX + (x * Game.GAME_CELL_PIXEL_SIZE),
+                            pieceY + (y * Game.GAME_CELL_PIXEL_SIZE)
+                        );
 
-	/* -Start her-  
-     * GAME_CELL_PIXEL_SIZE skal findes.
-     * DrawCell virkede men fejlede efter noget udenfor den blev redigeret.
-     * DrawPieceHolder skal testes efter debugging.
-     * Når DrawPieceHolder virker skal det udkommenterede kode fjernes.
-     */
-	private void DrawCell(Graphics graphics, Point pos, int type, bool ghost)
+                        DrawCell(graphics, cPos, type, false);
+                    }
+                }
+
+                cellPen.Dispose();
+                cellBrush.Dispose();
+            }
+        }
+
+        /* -Start her-  
+         * DrawPieceHolder skal testes efter debugging.
+         * Når DrawPieceHolder virker skal det udkommenterede kode fjernes.
+         */
+        private void DrawCell(Graphics graphics, Point pos, int type, bool ghost)
         {
             //Pulls colors for the cell
             Brush fillCol;
-            if(ghost) {
-				fillCol = new SolidBrush(TetrisGame.TETROMINO_GHOST_COLORS[type]);
-			} else {
-				fillCol = new SolidBrush(TetrisGame.TETROMINO_COLORS[type]);
-			}
+            if (ghost)
+            {
+                fillCol = new SolidBrush(TetrisGame.TETROMINO_GHOST_COLORS[type]);
+            }
+            else
+            {
+                fillCol = new SolidBrush(TetrisGame.TETROMINO_COLORS[type]);
+            }
 
             //Alt color (Outline and pit)
-			Pen outlineCol = new Pen(TetrisGame.TETROMINO_ALT_COLORS[type], 2);
-			Brush pitCol = new SolidBrush(TetrisGame.TETROMINO_ALT_COLORS[type]);
+            Pen outlineCol = new Pen(TetrisGame.TETROMINO_ALT_COLORS[type], 2);
+            Brush pitCol = new SolidBrush(TetrisGame.TETROMINO_ALT_COLORS[type]);
 
             int offset = -2;
 
-			int cellsize = Game.GAME_CELL_PIXEL_SIZE + offset * 2;
+            int cellsize = this.Game.GAME_CELL_PIXEL_SIZE + offset * 2;
 
 
             //Creates the cell base
-			Rectangle cell = new Rectangle(
-                pos.X - offset, 
-                pos.Y - offset, 
-                cellsize, 
+            Rectangle cell = new Rectangle(
+                pos.X - offset,
+                pos.Y - offset,
+                cellsize,
                 cellsize);
 
             graphics.FillRectangle(fillCol, cell);
             graphics.DrawRectangle(outlineCol, cell);
 
             //Creates the cell pit
-			Rectangle pit = new Rectangle(
-                cellsize / 4 + pos.X - offset, 
-                cellsize / 4 + pos.Y - offset, 
-                cellsize / 2, 
+            Rectangle pit = new Rectangle(
+                cellsize / 4 + pos.X - offset,
+                cellsize / 4 + pos.Y - offset,
+                cellsize / 2,
                 cellsize / 2);
 
             if (ghost)
             {
-				graphics.DrawRectangle(outlineCol, pit);
-			} else {
-				graphics.FillRectangle(pitCol, pit);
-			}
-			
+                graphics.DrawRectangle(outlineCol, pit);
+            }
+            else
+            {
+                graphics.FillRectangle(pitCol, pit);
+            }
 
-		}
+
+        }
+
     }
+
+
+
+
+    
 }

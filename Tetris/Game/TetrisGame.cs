@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Tetris.Game;
 
-namespace Tetris
+namespace Tetris.Game
 {
     /// <summary>
     /// Holds various globals and the internal state of the game of Tetris.
